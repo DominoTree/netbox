@@ -52,7 +52,8 @@ class JSONEmpty(Lookup):
     """
     Support "empty" lookups for JSONField keys.
 
-    A key is considered empty if it is "", null, or does not exist.
+    A key is considered empty if it is "", null, [] (empty array), or does not exist.
+    This aligns with CUSTOMFIELD_EMPTY_VALUES in extras/constants.py.
     """
     lookup_name = 'empty'
 
@@ -67,7 +68,7 @@ class JSONEmpty(Lookup):
             raise ValueError("The 'empty' lookup only accepts True or False.")
 
         condition = '' if value else 'NOT '
-        sql = f"(NULLIF({lhs_sql}, '') IS {condition}NULL)"
+        sql = f"(NULLIF(NULLIF({lhs_sql}, ''), '[]') IS {condition}NULL)"
 
         return sql, lhs_params
 

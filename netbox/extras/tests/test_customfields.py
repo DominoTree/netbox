@@ -1693,6 +1693,9 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
             Site(name='Site 4', slug='site-4'),
+            Site(name='Site 5', slug='site-5', custom_field_data={
+                'cf10': [],
+            }),
         ])
 
     def test_filter_integer(self):
@@ -1702,7 +1705,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__gte': [200]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf1__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf1__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_decimal(self):
         self.assertEqual(self.filterset({'cf_cf2': [100.1, 200.2]}, self.queryset).qs.count(), 2)
@@ -1711,7 +1714,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf2__gte': [200.2]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf2__lt': [200.2]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf2__lte': [200.2]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf2__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
@@ -1728,7 +1731,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf4__niew': ['bar']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf4__ie': ['FOO']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf4__nie': ['FOO']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf4__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_text_loose(self):
         self.assertEqual(self.filterset({'cf_cf5': ['foo']}, self.queryset).qs.count(), 2)
@@ -1740,7 +1743,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf6__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf6__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf6__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf6__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf6__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_url_strict(self):
         self.assertEqual(
@@ -1756,20 +1759,21 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf7__niew': ['.com']}, self.queryset).qs.count(), 0)
         self.assertEqual(self.filterset({'cf_cf7__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf7__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf7__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_url_loose(self):
         self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
 
     def test_filter_select(self):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf9__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf9__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)  # Contains a literal null
-        self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf10__empty': False}, self.queryset).qs.count(), 2)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
@@ -1777,7 +1781,7 @@ class CustomFieldModelFilterTest(TestCase):
             self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
             2
         )
-        self.assertEqual(self.filterset({'cf_cf11__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf11__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_multiobject(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
@@ -1789,4 +1793,4 @@ class CustomFieldModelFilterTest(TestCase):
             self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(),
             3
         )
-        self.assertEqual(self.filterset({'cf_cf12__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf12__empty': True}, self.queryset).qs.count(), 2)
