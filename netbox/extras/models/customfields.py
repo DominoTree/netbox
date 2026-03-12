@@ -356,6 +356,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     def clean(self):
         super().clean()
 
+        # Coalesce empty string default to None
+        if self.default == '':
+            self.default = None
+
         # Validate the field's default value (if any)
         if self.default is not None:
             try:

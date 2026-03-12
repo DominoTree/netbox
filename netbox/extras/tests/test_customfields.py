@@ -656,6 +656,15 @@ class CustomFieldTest(TestCase):
             ).full_clean()
 
 
+    def test_empty_string_default_coalesced_to_none(self):
+        """
+        An empty string default value should be coalesced to None during clean().
+        """
+        cf = CustomField(name='test', type='text', default='')
+        cf.full_clean()
+        self.assertIsNone(cf.default)
+
+
 class CustomFieldManagerTest(TestCase):
 
     @classmethod
